@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MasterPatcher</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="main_card_licensePlaceholder">Nothing to patch</string>
+    <string name="main_card_appPlaceholder">No Application</string>
+    <string name="patch">License checking found.</string>
+    <string name="no_patch">Nothing to patch.</string>
+</resources>
