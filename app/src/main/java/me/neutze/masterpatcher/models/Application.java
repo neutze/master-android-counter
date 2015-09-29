@@ -1,23 +1,28 @@
 package me.neutze.masterpatcher.models;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import me.neutze.masterpatcher.R;
+import eu.chainfire.libsuperuser.Shell;
 
 /**
  * Created by H1GHWAvE on 24/09/15.
  */
-public class Application {
+public class Application implements Parcelable {
     private int appId;
     private String name;
     private boolean license;
-    private int logo;
+    private Drawable logo;
 
 
-    Application(int appId, String name, boolean license, int logo) {
+    Application(int appId, String name, boolean license, Drawable logo) {
         this.appId = appId;
         this.name = name;
         this.license = license;
@@ -48,33 +53,69 @@ public class Application {
         this.license = license;
     }
 
-    public int getLogo() {
+    public Drawable getLogo() {
         return logo;
     }
 
-    public void setLogo(int logo) {
+    public void setLogo(Drawable logo) {
         this.logo = logo;
     }
 
     public static List<Application> getApplications(Context context) {
         List<Application> applicationsList = new ArrayList<>();
 
-        applicationsList.add(new Application(1, "de.first.app", true, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(2, "de.second.app", true, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(3, "de.third.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(4, "de.four.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(5, "de.five.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(6, "de.six.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(7, "de.seven.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(8, "de.eight.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(9, "de.nine.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(10, "de.ten.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(11, "de.eleven.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(12, "de.twelve.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(13, "de.thirteen.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(14, "de.fourteen.app", false, R.mipmap.ic_launcher));
-        applicationsList.add(new Application(15, "de.fifteen.app", false, R.mipmap.ic_launcher));
+        List<String> installedApplications = Shell.SU.run("ls /data/app");
+        for (String application : installedApplications) {
+
+            String APKFilePath = "data/app/" + application + "/base.apk";
+
+            PackageManager pm = context.getPackageManager();
+            PackageInfo pi = pm.getPackageArchiveInfo(APKFilePath, 0);
+
+            pi.applicationInfo.sourceDir = APKFilePath;
+            pi.applicationInfo.publicSourceDir = APKFilePath;
+            //
+
+            Drawable APKicon = pi.applicationInfo.loadIcon(pm);
+            String AppName = (String) pi.applicationInfo.loadLabel(pm);
+            //pi.applicationInfo.load
+
+            applicationsList.add(new Application(1, AppName, true, APKicon));
+        }
 
         return applicationsList;
     }
+
+    protected Application(Parcel in) {
+        appId = in.readInt();
+        name = in.readString();
+        license = in.readByte() != 0x00;
+        logo = (Drawable) in.readValue(Drawable.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(appId);
+        dest.writeString(name);
+        dest.writeByte((byte) (license ? 0x01 : 0x00));
+        dest.writeValue(logo);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Application> CREATOR = new Parcelable.Creator<Application>() {
+        @Override
+        public Application createFromParcel(Parcel in) {
+            return new Application(in);
+        }
+
+        @Override
+        public Application[] newArray(int size) {
+            return new Application[size];
+        }
+    };
 }

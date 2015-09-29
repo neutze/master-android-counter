@@ -7,4 +7,6 @@
     <string name="main_card_appPlaceholder">No Application</string>
     <string name="patch">License checking found.</string>
     <string name="no_patch">Nothing to patch.</string>
+    <string name="parcelable_application">parcelable_application</string>
+    <string name="dialog_application">dialog_application</string>
 </resources>

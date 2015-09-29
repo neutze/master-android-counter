@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.List;
 
 import me.neutze.masterpatcher.R;
@@ -20,8 +18,9 @@ import me.neutze.masterpatcher.models.Application;
  * Created by H1GHWAvE on 24/09/15.
  */
 public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapter.ApplicationViewHolder> {
-    List<Application> applications;
-    Context context;
+    private List<Application> applications;
+    private Context context;
+    private static ClickListener clickListener;
 
     public ApplicationsAdapter(List<Application> applications, Context context) {
         this.applications = applications;
@@ -42,7 +41,7 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         } else {
             mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.no_patch));
         }
-        Picasso.with(context).load(applications.get(i).getLogo()).into(mApplicationViewHolder.applicationLogo);
+        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getLogo());
     }
 
     @Override
@@ -50,7 +49,16 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         return applications.size();
     }
 
-    public static class ApplicationViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(ClickListener clickListener) {
+        ApplicationsAdapter.clickListener = clickListener;
+    }
+
+    public interface ClickListener {
+        void onItemClick(int position, View v);
+    }
+
+
+    public static class ApplicationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         CardView mCardView;
         TextView applicationName;
         TextView licenseVerification;
@@ -62,6 +70,13 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
             applicationName = (TextView) itemView.findViewById(R.id.app_name);
             licenseVerification = (TextView) itemView.findViewById(R.id.app_license);
             applicationLogo = (ImageView) itemView.findViewById(R.id.app_logo);
+            itemView.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.onItemClick(getAdapterPosition(), v);
         }
     }
 }
