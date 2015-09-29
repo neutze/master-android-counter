@@ -1,5 +1,6 @@
 package me.neutze.masterpatcher.activities;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +16,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.neutze.masterpatcher.R;
 import me.neutze.masterpatcher.adapters.ApplicationsAdapter;
-import me.neutze.masterpatcher.models.Application;
+import me.neutze.masterpatcher.models.APKItem;
 import me.neutze.masterpatcher.utils.RootUtils;
 import me.neutze.masterpatcher.utils.dialogs.ApplicationDialog;
 
@@ -23,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.main_recyclerView)
     RecyclerView mRecyclerView;
 
-    private List<Application> applicationsList;
+    PackageManager packetManager;
+    private List<APKItem> applicationsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +33,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        packetManager = getPackageManager();
+
         if (RootUtils.isSUavailable()) {
             setApplicationsList();
         }
     }
 
     private void setApplicationsList() {
-        applicationsList = Application.getApplications(getApplicationContext());
+        applicationsList = APKItem.getApplications(getApplicationContext());
         ApplicationsAdapter mApplicationsAdapter = new ApplicationsAdapter(applicationsList, getApplicationContext());
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
 
@@ -72,10 +76,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void showApplicationDialog(Application application) {
+    private void showApplicationDialog(APKItem apkItem) {
         FragmentManager mFragmentManager = getSupportFragmentManager();
-        ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, application);
+        ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, apkItem);
         mApplicationDialog.show(mFragmentManager, getApplicationContext().getResources().getString(R.string.dialog_application));
     }
-
 }

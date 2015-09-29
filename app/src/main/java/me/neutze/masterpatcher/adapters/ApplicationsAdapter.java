@@ -12,17 +12,17 @@ import android.widget.TextView;
 import java.util.List;
 
 import me.neutze.masterpatcher.R;
-import me.neutze.masterpatcher.models.Application;
+import me.neutze.masterpatcher.models.APKItem;
 
 /**
  * Created by H1GHWAvE on 24/09/15.
  */
 public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapter.ApplicationViewHolder> {
-    private List<Application> applications;
+    private List<APKItem> applications;
     private Context context;
     private static ClickListener clickListener;
 
-    public ApplicationsAdapter(List<Application> applications, Context context) {
+    public ApplicationsAdapter(List<APKItem> applications, Context context) {
         this.applications = applications;
         this.context = context;
     }
@@ -36,12 +36,12 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
     @Override
     public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, int i) {
         mApplicationViewHolder.applicationName.setText(applications.get(i).getName());
-        if (applications.get(i).hasLicense()) {
+        if (false) {
             mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.patch));
         } else {
             mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.no_patch));
         }
-        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getLogo());
+        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getIcon());
     }
 
     @Override

@@ -9,4 +9,7 @@
     <string name="no_patch">Nothing to patch.</string>
     <string name="parcelable_application">parcelable_application</string>
     <string name="dialog_application">dialog_application</string>
+    <string name="dialog_remove_verification">Remove License Verification</string>
+    <string name="app_folder">/data/app/</string>
+    <string name="base_apk">base.apk</string>
 </resources>

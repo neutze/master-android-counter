@@ -1,15 +1,39 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/edit_name"
-    android:layout_width="wrap_content" android:layout_height="wrap_content"
-    android:layout_gravity="center" android:orientation="vertical"  >
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/lbl_your_name" android:text="Your name"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/txt_your_name"
-        android:layout_width="match_parent"  android:layout_height="wrap_content"
-        android:inputType="text"
-    android:imeOptions="actionDone" />
+        <TextView
+            android:id="@+id/lbl_your_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your name" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_vpn_key_black_24px"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dialog_remove_verification"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

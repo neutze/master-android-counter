@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginRight="16dp"
-            android:src="@drawable/tumlogo_oz_outline_blau_rgb" />
+            android:layout_marginRight="16dp"/>
 
         <TextView
             android:id="@+id/app_name"
