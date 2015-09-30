@@ -1,15 +1,21 @@
 package me.neutze.masterpatcher.activities;
 
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import net.erdfelt.android.apk.AndroidApk;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
@@ -18,7 +24,6 @@ import me.neutze.masterpatcher.R;
 import me.neutze.masterpatcher.adapters.ApplicationsAdapter;
 import me.neutze.masterpatcher.models.APKItem;
 import me.neutze.masterpatcher.utils.RootUtils;
-import me.neutze.masterpatcher.utils.dialogs.ApplicationDialog;
 
 public class MainActivity extends AppCompatActivity {
     @Bind(R.id.main_recyclerView)
@@ -36,26 +41,8 @@ public class MainActivity extends AppCompatActivity {
         packetManager = getPackageManager();
 
         if (RootUtils.isSUavailable()) {
-            setApplicationsList();
+            new APKItemsLoader().execute();
         }
-    }
-
-    private void setApplicationsList() {
-        applicationsList = APKItem.getApplications(getApplicationContext());
-        ApplicationsAdapter mApplicationsAdapter = new ApplicationsAdapter(applicationsList, getApplicationContext());
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
-
-        mApplicationsAdapter.setOnItemClickListener(new ApplicationsAdapter.ClickListener() {
-            @Override
-            public void onItemClick(int position, View v) {
-
-                showApplicationDialog(applicationsList.get(position));
-            }
-        });
-
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.setAdapter(mApplicationsAdapter);
     }
 
 
@@ -77,8 +64,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showApplicationDialog(APKItem apkItem) {
-        FragmentManager mFragmentManager = getSupportFragmentManager();
-        ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, apkItem);
-        mApplicationDialog.show(mFragmentManager, getApplicationContext().getResources().getString(R.string.dialog_application));
+
+
+        /**FragmentManager mFragmentManager = getSupportFragmentManager();
+         ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, apkItem);
+         mApplicationDialog.show(mFragmentManager, getApplicationContext().getResources().getString(R.string.dialog_application));
+         ?**/
+        String applicationPath = getApplicationContext().getResources().getString(R.string.app_folder) + apkItem.pkgName + "/" + getApplicationContext().getResources().getString(R.string.base_apk);
+
+
+        AndroidApk apk = null;
+        try {
+            apk = new AndroidApk(new File(applicationPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (apk.getPermissions() != null) {
+            for (String permission : apk.getPermissions()) {
+                Log.e("JOHANNES", permission);
+            }
+        }
+    }
+
+
+    private class APKItemsLoader extends AsyncTask<Void, List<APKItem>, Void> {
+        ProgressDialog dialog;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            applicationsList = APKItem.getApplications(getApplicationContext());
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = ProgressDialog.show(MainActivity.this, "", "Loading. Please wait...", true);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+            ApplicationsAdapter mApplicationsAdapter = new ApplicationsAdapter(applicationsList, getApplicationContext());
+            LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getApplicationContext());
+
+            mApplicationsAdapter.setOnItemClickListener(new ApplicationsAdapter.ClickListener() {
+                @Override
+                public void onItemClick(int position, View v) {
+
+                    showApplicationDialog(applicationsList.get(position));
+                }
+            });
+
+            dialog.cancel();
+
+            mRecyclerView.setHasFixedSize(true);
+            mRecyclerView.setLayoutManager(mLinearLayoutManager);
+            mRecyclerView.setAdapter(mApplicationsAdapter);
+            super.onPostExecute(aVoid);
+        }
     }
 }

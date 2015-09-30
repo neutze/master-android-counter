@@ -35,13 +35,13 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
 
     @Override
     public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, int i) {
-        mApplicationViewHolder.applicationName.setText(applications.get(i).getName());
+        mApplicationViewHolder.applicationName.setText(applications.get(i).name);
         if (false) {
             mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.patch));
         } else {
             mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.no_patch));
         }
-        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getIcon());
+        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).icon);
     }
 
     @Override

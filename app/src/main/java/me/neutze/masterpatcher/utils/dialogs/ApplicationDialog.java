@@ -39,9 +39,9 @@ public class ApplicationDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //TODO: dialog
         View view = inflater.inflate(R.layout.dialog_application, container);
-        String inputFile = getActivity().getResources().getString(R.string.app_folder) + application.getBackupfile() + "/" + getActivity().getResources().getString(R.string.base_apk);
+        String inputFile = getActivity().getResources().getString(R.string.app_folder) + application.name + "/" + getActivity().getResources().getString(R.string.base_apk);
         String outputFolder = "/storage/sdcard0/Download/";
-        getDialog().setTitle(application.getName());
+        getDialog().setTitle(application.name);
 
         //new ZipUtils.ZipAsyncTask().execute(inputFile, outputFolder);
 

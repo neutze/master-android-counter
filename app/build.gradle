@@ -4,6 +4,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
     defaultConfig {
         applicationId "me.neutze.masterpatcher"
         minSdkVersion 21
@@ -31,4 +36,5 @@ dependencies {
     compile 'eu.chainfire:libsuperuser:1.0.0.201504231659'
     compile 'com.google.code.gson:gson:2.3.1'
     compile files('libs/zip4j_1.3.2.jar')
+
 }
