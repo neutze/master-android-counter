@@ -18,9 +18,9 @@ import me.neutze.masterpatcher.models.APKItem;
  * Created by H1GHWAvE on 24/09/15.
  */
 public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapter.ApplicationViewHolder> {
+    private static ClickListener clickListener;
     private List<APKItem> applications;
     private Context context;
-    private static ClickListener clickListener;
 
     public ApplicationsAdapter(List<APKItem> applications, Context context) {
         this.applications = applications;
@@ -35,13 +35,32 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
 
     @Override
     public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, int i) {
-        mApplicationViewHolder.applicationName.setText(applications.get(i).name);
-        if (false) {
-            mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.patch));
-        } else {
-            mApplicationViewHolder.licenseVerification.setText(context.getString(R.string.no_patch));
+        mApplicationViewHolder.applicationName.setText(applications.get(i).getName());
+
+        String permissions = null;
+
+        if (applications.get(i).getLvl()) {
+            permissions = context.getResources().getString(R.string.lvl);
         }
-        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).icon);
+
+        if (applications.get(i).getBilling()) {
+            if (permissions == null)
+                permissions = context.getResources().getString(R.string.billing);
+            else
+                permissions += "\n" + context.getResources().getString(R.string.billing);
+        }
+        if (applications.get(i).getAds()) {
+            if (permissions == null)
+                permissions = context.getResources().getString(R.string.ads);
+            else
+                permissions += "\n" + context.getResources().getString(R.string.ads);
+        }
+
+        if (permissions == null)
+            permissions = context.getString(R.string.no_patch);
+
+        mApplicationViewHolder.licenseVerification.setText(permissions);
+        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getIcon());
     }
 
     @Override

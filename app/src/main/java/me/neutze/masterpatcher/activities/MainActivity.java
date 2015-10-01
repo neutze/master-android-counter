@@ -7,15 +7,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import net.erdfelt.android.apk.AndroidApk;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
@@ -70,21 +65,6 @@ public class MainActivity extends AppCompatActivity {
          ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, apkItem);
          mApplicationDialog.show(mFragmentManager, getApplicationContext().getResources().getString(R.string.dialog_application));
          ?**/
-        String applicationPath = getApplicationContext().getResources().getString(R.string.app_folder) + apkItem.pkgName + "/" + getApplicationContext().getResources().getString(R.string.base_apk);
-
-
-        AndroidApk apk = null;
-        try {
-            apk = new AndroidApk(new File(applicationPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (apk.getPermissions() != null) {
-            for (String permission : apk.getPermissions()) {
-                Log.e("JOHANNES", permission);
-            }
-        }
     }
 
 

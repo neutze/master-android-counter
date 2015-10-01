@@ -16,4 +16,7 @@
     <string name="activities">activities</string>
     <string name="permissions">permissions</string>
     <string name="manifest">AndroidManifest.xml</string>
+    <string name="lvl">License Verification found.</string>
+    <string name="billing">InApp purchases found.</string>
+    <string name="ads">Advertisments found.</string>
 </resources>

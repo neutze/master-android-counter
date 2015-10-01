@@ -6,7 +6,12 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+import net.erdfelt.android.apk.AndroidApk;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +21,7 @@ import me.neutze.masterpatcher.utils.AdUtils;
 import me.neutze.masterpatcher.utils.ModifiedUtils;
 import me.neutze.masterpatcher.utils.OdexUtils;
 import me.neutze.masterpatcher.utils.SDCardUtils;
+import me.neutze.masterpatcher.utils.SharedPrefUtils;
 import me.neutze.masterpatcher.utils.TimeUtils;
 
 /**
@@ -23,31 +29,39 @@ import me.neutze.masterpatcher.utils.TimeUtils;
  */
 public class APKItem implements Parcelable {
 
-    public boolean ads;
-    public boolean billing;
-    public boolean boot_ads;
-    public boolean boot_custom;
-    public boolean boot_lvl;
-    public boolean boot_manual;
-    public boolean custom;
-    public boolean enable;
-    public boolean hidden;
-    public Drawable icon;
-    public boolean lvl;
-    public boolean modified;
-    public String name;
-    public boolean odex;
-    public boolean on_sd;
-    public String pkgName;
-    public boolean selected;
-    public String statusi;
-    public int stored;
-    public int storepref;
-    public boolean system;
-    public int updatetime;
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<APKItem> CREATOR = new Parcelable.Creator<APKItem>() {
+        @Override
+        public APKItem createFromParcel(Parcel in) {
+            return new APKItem(in);
+        }
+
+        @Override
+        public APKItem[] newArray(int size) {
+            return new APKItem[size];
+        }
+    };
+    private boolean ads;
+    private boolean billing;
+    private boolean custom;
+    private boolean enable;
+    private Drawable icon;
+    private boolean lvl;
+    private boolean modified;
+    private String name;
+    private boolean odex;
+    private boolean on_sd;
+    private String pkgName;
+    private int stored;
+    private boolean system;
+    private int updatetime;
+    private List<String> permissions;
+    private List<String> advertisments;
 
     public APKItem(Context context, String application) {
         this.pkgName = application;
+
+        Log.e(pkgName, "newAPK");
 
         String applicationPath = context.getResources().getString(R.string.app_folder) + application + "/" + context.getResources().getString(R.string.base_apk);
 
@@ -63,11 +77,7 @@ public class APKItem implements Parcelable {
 
         this.name = packageInfo.applicationInfo.loadLabel(packageManager).toString();
 
-        if (OdexUtils.isOdex(applicationPath)) {
-            this.odex = true;
-        } else {
-            this.odex = false;
-        }
+        this.odex = OdexUtils.isOdex(applicationPath);
 
         this.updatetime = (int) (TimeUtils.getfirstInstallTime(packageInfo, pkgName) / 1000);
 
@@ -78,49 +88,118 @@ public class APKItem implements Parcelable {
         }
 
         if (packageInfo.activities != null) {
+            advertisments = new ArrayList<>();
+
             for (int i = 0; i < packageInfo.activities.length; i++) {
                 if (AdUtils.isAds(packageInfo.activities[i].name)) {
+                    advertisments.add(packageInfo.activities[i].name);
                     this.ads = true;
                 }
             }
         }
+
+        try {
+            AndroidApk apk = new AndroidApk(new File(applicationPath));
+            permissions = apk.getPermissions();
+            if (permissions != null) {
+                for (String permission : apk.getPermissions()) {
+                    if (permission.equals("com.android.vending.CHECK_LICENSE")) {
+                        lvl = true;
+                    }
+                    if (permission.equals("com.android.vending.BILLING")) {
+                        billing = true;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        stored = 0;
+        if (ads) {
+            stored += 100;
+        }
+        if (billing) {
+            stored += 10;
+        }
+        if (lvl) {
+            stored += 1;
+        }
     }
+
 
     protected APKItem(Parcel in) {
-        ads = in.readByte() != 0;
-        billing = in.readByte() != 0;
-        boot_ads = in.readByte() != 0;
-        boot_custom = in.readByte() != 0;
-        boot_lvl = in.readByte() != 0;
-        boot_manual = in.readByte() != 0;
-        custom = in.readByte() != 0;
-        enable = in.readByte() != 0;
-        hidden = in.readByte() != 0;
-        lvl = in.readByte() != 0;
-        modified = in.readByte() != 0;
+        ads = in.readByte() != 0x00;
+        billing = in.readByte() != 0x00;
+        custom = in.readByte() != 0x00;
+        enable = in.readByte() != 0x00;
+        icon = (Drawable) in.readValue(Drawable.class.getClassLoader());
+        lvl = in.readByte() != 0x00;
+        modified = in.readByte() != 0x00;
         name = in.readString();
-        odex = in.readByte() != 0;
-        on_sd = in.readByte() != 0;
+        odex = in.readByte() != 0x00;
+        on_sd = in.readByte() != 0x00;
         pkgName = in.readString();
-        selected = in.readByte() != 0;
-        statusi = in.readString();
         stored = in.readInt();
-        storepref = in.readInt();
-        system = in.readByte() != 0;
+        system = in.readByte() != 0x00;
         updatetime = in.readInt();
+        if (in.readByte() == 0x01) {
+            permissions = new ArrayList<>();
+            in.readList(permissions, String.class.getClassLoader());
+        } else {
+            permissions = null;
+        }
+        if (in.readByte() == 0x01) {
+            advertisments = new ArrayList<>();
+            in.readList(advertisments, String.class.getClassLoader());
+        } else {
+            advertisments = null;
+        }
     }
 
-    public static final Creator<APKItem> CREATOR = new Creator<APKItem>() {
-        @Override
-        public APKItem createFromParcel(Parcel in) {
-            return new APKItem(in);
+    public static List<APKItem> getApplications(Context context) {
+        List<APKItem> applicationsList = new ArrayList<>();
+
+        List<String> installedApplications = Shell.SU.run("ls " + context.getResources().getString(R.string.app_folder));
+        for (String application : installedApplications) {
+            APKItem apkItem = SharedPrefUtils.getAPKItem(context, application);
+
+            if (apkItem == null) {
+                apkItem = new APKItem(context, application);
+            } else {
+                SharedPrefUtils.saveAPKItem(context, apkItem);
+            }
+
+            applicationsList.add(apkItem);
         }
 
-        @Override
-        public APKItem[] newArray(int size) {
-            return new APKItem[size];
-        }
-    };
+        return applicationsList;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Drawable getIcon() {
+        return icon;
+    }
+
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    public boolean getLvl() {
+        return lvl;
+    }
+
+    public boolean getBilling() {
+        return billing;
+    }
+
+    public boolean getAds() {
+        return ads;
+    }
 
     @Override
     public int describeContents() {
@@ -129,38 +208,35 @@ public class APKItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (ads ? 1 : 0));
-        dest.writeByte((byte) (billing ? 1 : 0));
-        dest.writeByte((byte) (boot_ads ? 1 : 0));
-        dest.writeByte((byte) (boot_custom ? 1 : 0));
-        dest.writeByte((byte) (boot_lvl ? 1 : 0));
-        dest.writeByte((byte) (boot_manual ? 1 : 0));
-        dest.writeByte((byte) (custom ? 1 : 0));
-        dest.writeByte((byte) (enable ? 1 : 0));
-        dest.writeByte((byte) (hidden ? 1 : 0));
-        dest.writeByte((byte) (lvl ? 1 : 0));
-        dest.writeByte((byte) (modified ? 1 : 0));
+        dest.writeByte((byte) (ads ? 0x01 : 0x00));
+        dest.writeByte((byte) (billing ? 0x01 : 0x00));
+        dest.writeByte((byte) (custom ? 0x01 : 0x00));
+        dest.writeByte((byte) (enable ? 0x01 : 0x00));
+        dest.writeValue(icon);
+        dest.writeByte((byte) (lvl ? 0x01 : 0x00));
+        dest.writeByte((byte) (modified ? 0x01 : 0x00));
         dest.writeString(name);
-        dest.writeByte((byte) (odex ? 1 : 0));
-        dest.writeByte((byte) (on_sd ? 1 : 0));
+        dest.writeByte((byte) (odex ? 0x01 : 0x00));
+        dest.writeByte((byte) (on_sd ? 0x01 : 0x00));
         dest.writeString(pkgName);
-        dest.writeByte((byte) (selected ? 1 : 0));
-        dest.writeString(statusi);
         dest.writeInt(stored);
-        dest.writeInt(storepref);
-        dest.writeByte((byte) (system ? 1 : 0));
+        dest.writeByte((byte) (system ? 0x01 : 0x00));
         dest.writeInt(updatetime);
+        if (permissions == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(permissions);
+        }
+        if (advertisments == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(advertisments);
+        }
     }
 
-    public static List<APKItem> getApplications(Context context) {
-        List<APKItem> applicationsList = new ArrayList<>();
-
-        List<String> installedApplications = Shell.SU.run("ls " + context.getResources().getString(R.string.app_folder));
-        for (String application : installedApplications) {
-
-            applicationsList.add(new APKItem(context, application));
-        }
-
-        return applicationsList;
+    public String getPkgName() {
+        return pkgName;
     }
 }
