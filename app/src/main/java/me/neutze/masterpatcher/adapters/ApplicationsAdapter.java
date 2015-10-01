@@ -14,9 +14,6 @@ import java.util.List;
 import me.neutze.masterpatcher.R;
 import me.neutze.masterpatcher.models.APKItem;
 
-/**
- * Created by H1GHWAvE on 24/09/15.
- */
 public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapter.ApplicationViewHolder> {
     private static ClickListener clickListener;
     private List<APKItem> applications;
@@ -39,6 +36,27 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
 
         String permissions = null;
 
+        switch (applications.get(i).getAttributes()) {
+            case (1):
+                break;
+            case (10):
+
+                break;
+            case (11):
+                break;
+            case (100):
+                break;
+            case (101):
+                break;
+            case (110):
+                break;
+            case (111):
+                break;
+            default:
+                break;
+        }
+
+
         if (applications.get(i).getLvl()) {
             permissions = context.getResources().getString(R.string.lvl);
         }
@@ -59,7 +77,7 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         if (permissions == null)
             permissions = context.getString(R.string.no_patch);
 
-        mApplicationViewHolder.licenseVerification.setText(permissions);
+        mApplicationViewHolder.options.setText(permissions);
         mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getIcon());
     }
 
@@ -80,14 +98,14 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
     public static class ApplicationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         CardView mCardView;
         TextView applicationName;
-        TextView licenseVerification;
+        TextView options;
         ImageView applicationLogo;
 
         ApplicationViewHolder(View itemView) {
             super(itemView);
             mCardView = (CardView) itemView.findViewById(R.id.application_card);
             applicationName = (TextView) itemView.findViewById(R.id.app_name);
-            licenseVerification = (TextView) itemView.findViewById(R.id.app_license);
+            options = (TextView) itemView.findViewById(R.id.app_license);
             applicationLogo = (ImageView) itemView.findViewById(R.id.app_logo);
             itemView.setOnClickListener(this);
 
