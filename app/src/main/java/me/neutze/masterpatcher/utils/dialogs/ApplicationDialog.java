@@ -24,7 +24,7 @@ public class ApplicationDialog extends DialogFragment {
     public static ApplicationDialog newInstance(Context context, APKItem application) {
         ApplicationDialog mApplicationDialog = new ApplicationDialog();
         Bundle args = new Bundle();
-        args.putParcelable(context.getResources().getString(R.string.parcelable_application), application);
+        //args.putParcelable(context.getResources().getString(R.string.parcelable_application), application);
         mApplicationDialog.setArguments(args);
         return mApplicationDialog;
     }

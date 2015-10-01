@@ -18,5 +18,6 @@
     <string name="manifest">AndroidManifest.xml</string>
     <string name="lvl">License Verification found.</string>
     <string name="billing">InApp purchases found.</string>
-    <string name="ads">Advertisments found.</string>
+    <string name="ads">Advertisements found.</string>
+    <string name="version_code">version_code</string>
 </resources>

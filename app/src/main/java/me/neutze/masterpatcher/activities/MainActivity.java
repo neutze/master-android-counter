@@ -19,6 +19,7 @@ import me.neutze.masterpatcher.R;
 import me.neutze.masterpatcher.adapters.ApplicationsAdapter;
 import me.neutze.masterpatcher.models.APKItem;
 import me.neutze.masterpatcher.utils.RootUtils;
+import me.neutze.masterpatcher.utils.SharedPrefUtils;
 
 public class MainActivity extends AppCompatActivity {
     @Bind(R.id.main_recyclerView)
@@ -35,8 +36,23 @@ public class MainActivity extends AppCompatActivity {
 
         packetManager = getPackageManager();
 
+
+        checkVersion();
+
         if (RootUtils.isSUavailable()) {
             new APKItemsLoader().execute();
+        }
+    }
+
+    private void checkVersion() {
+        try {
+            int versionCode = packetManager.getPackageInfo(getPackageName(), 0).versionCode;
+            if (versionCode != SharedPrefUtils.getVersion(getApplicationContext())) {
+                SharedPrefUtils.clearAllPrefs(getApplicationContext());
+                SharedPrefUtils.saveVersion(getApplicationContext(), versionCode);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            SharedPrefUtils.clearAllPrefs(getApplicationContext());
         }
     }
 

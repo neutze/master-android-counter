@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import net.erdfelt.android.apk.AndroidApk;
@@ -27,25 +25,13 @@ import me.neutze.masterpatcher.utils.TimeUtils;
 /**
  * Created by H1GHWAvE on 24/09/15.
  */
-public class APKItem implements Parcelable {
+public class APKItem {
 
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<APKItem> CREATOR = new Parcelable.Creator<APKItem>() {
-        @Override
-        public APKItem createFromParcel(Parcel in) {
-            return new APKItem(in);
-        }
-
-        @Override
-        public APKItem[] newArray(int size) {
-            return new APKItem[size];
-        }
-    };
     private boolean ads;
     private boolean billing;
     private boolean custom;
     private boolean enable;
-    private Drawable icon;
+    private transient Drawable icon;
     private boolean lvl;
     private boolean modified;
     private String name;
@@ -55,18 +41,17 @@ public class APKItem implements Parcelable {
     private int stored;
     private boolean system;
     private int updatetime;
+    private String applicationPath;
     private List<String> permissions;
     private List<String> advertisments;
+    private boolean edited;
 
-    public APKItem(Context context, String application) {
-        this.pkgName = application;
+    private APKItem(Context context, String pkgName, PackageManager packageManager) {
+        this.pkgName = pkgName;
 
-        Log.e(pkgName, "newAPK");
-
-        String applicationPath = context.getResources().getString(R.string.app_folder) + application + "/" + context.getResources().getString(R.string.base_apk);
-
-        PackageManager packageManager = context.getPackageManager();
+        this.applicationPath = context.getResources().getString(R.string.app_folder) + pkgName + "/" + context.getResources().getString(R.string.base_apk);
         PackageInfo packageInfo = packageManager.getPackageArchiveInfo(applicationPath, 1);
+
         packageInfo.applicationInfo.sourceDir = applicationPath;
         packageInfo.applicationInfo.publicSourceDir = applicationPath;
 
@@ -79,9 +64,9 @@ public class APKItem implements Parcelable {
 
         this.odex = OdexUtils.isOdex(applicationPath);
 
-        this.updatetime = (int) (TimeUtils.getfirstInstallTime(packageInfo, pkgName) / 1000);
+        this.updatetime = (int) (TimeUtils.getfirstInstallTime(packageInfo, this.pkgName) / 1000);
 
-        this.modified = ModifiedUtils.isModified(pkgName);
+        this.modified = ModifiedUtils.isModified(this.pkgName);
 
         if (packageInfo.applicationInfo.flags == 1) {
             this.system = true;
@@ -126,67 +111,67 @@ public class APKItem implements Parcelable {
         if (lvl) {
             stored += 1;
         }
+
+        this.edited = false;
     }
 
-
-    protected APKItem(Parcel in) {
-        ads = in.readByte() != 0x00;
-        billing = in.readByte() != 0x00;
-        custom = in.readByte() != 0x00;
-        enable = in.readByte() != 0x00;
-        icon = (Drawable) in.readValue(Drawable.class.getClassLoader());
-        lvl = in.readByte() != 0x00;
-        modified = in.readByte() != 0x00;
-        name = in.readString();
-        odex = in.readByte() != 0x00;
-        on_sd = in.readByte() != 0x00;
-        pkgName = in.readString();
-        stored = in.readInt();
-        system = in.readByte() != 0x00;
-        updatetime = in.readInt();
-        if (in.readByte() == 0x01) {
-            permissions = new ArrayList<>();
-            in.readList(permissions, String.class.getClassLoader());
-        } else {
-            permissions = null;
-        }
-        if (in.readByte() == 0x01) {
-            advertisments = new ArrayList<>();
-            in.readList(advertisments, String.class.getClassLoader());
-        } else {
-            advertisments = null;
-        }
-    }
 
     public static List<APKItem> getApplications(Context context) {
         List<APKItem> applicationsList = new ArrayList<>();
+        PackageManager packageManager = context.getPackageManager();
 
         List<String> installedApplications = Shell.SU.run("ls " + context.getResources().getString(R.string.app_folder));
         for (String application : installedApplications) {
             APKItem apkItem = SharedPrefUtils.getAPKItem(context, application);
 
             if (apkItem == null) {
-                apkItem = new APKItem(context, application);
+                Log.e(application, "new APKItem");
+                apkItem = getApkItem(context, application, packageManager);
             } else {
-                SharedPrefUtils.saveAPKItem(context, apkItem);
+                if (apkItem.isEdited()) {
+                    Log.e(application, "update APKItem");
+                    apkItem = getApkItem(context, application, packageManager);
+                } else {
+                    Log.e(application, "get Icon");
+                    PackageInfo packageInfo = packageManager.getPackageArchiveInfo(apkItem.getApplicationPath(), 1);
+                    apkItem.setIcon(packageInfo.applicationInfo.loadIcon(packageManager));
+                }
             }
-
             applicationsList.add(apkItem);
         }
 
         return applicationsList;
     }
 
+    private static APKItem getApkItem(Context context, String application, PackageManager packageManager) {
+        APKItem apkItem = new APKItem(context, application, packageManager);
+        SharedPrefUtils.saveAPKItem(context, apkItem);
+
+        return apkItem;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Drawable getIcon() {
         return icon;
     }
 
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
+    }
+
     public List<String> getPermissions() {
         return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
     }
 
     public boolean getLvl() {
@@ -201,42 +186,123 @@ public class APKItem implements Parcelable {
         return ads;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (ads ? 0x01 : 0x00));
-        dest.writeByte((byte) (billing ? 0x01 : 0x00));
-        dest.writeByte((byte) (custom ? 0x01 : 0x00));
-        dest.writeByte((byte) (enable ? 0x01 : 0x00));
-        dest.writeValue(icon);
-        dest.writeByte((byte) (lvl ? 0x01 : 0x00));
-        dest.writeByte((byte) (modified ? 0x01 : 0x00));
-        dest.writeString(name);
-        dest.writeByte((byte) (odex ? 0x01 : 0x00));
-        dest.writeByte((byte) (on_sd ? 0x01 : 0x00));
-        dest.writeString(pkgName);
-        dest.writeInt(stored);
-        dest.writeByte((byte) (system ? 0x01 : 0x00));
-        dest.writeInt(updatetime);
-        if (permissions == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(permissions);
-        }
-        if (advertisments == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(advertisments);
-        }
-    }
-
     public String getPkgName() {
         return pkgName;
+    }
+
+    public void setPkgName(String pkgName) {
+        this.pkgName = pkgName;
+    }
+
+    public boolean isAds() {
+        return ads;
+    }
+
+    public void setAds(boolean ads) {
+        this.ads = ads;
+    }
+
+    public boolean isBilling() {
+        return billing;
+    }
+
+    public void setBilling(boolean billing) {
+        this.billing = billing;
+    }
+
+    public boolean isCustom() {
+        return custom;
+    }
+
+    public void setCustom(boolean custom) {
+        this.custom = custom;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    public boolean isLvl() {
+        return lvl;
+    }
+
+    public void setLvl(boolean lvl) {
+        this.lvl = lvl;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+    public boolean isOdex() {
+        return odex;
+    }
+
+    public void setOdex(boolean odex) {
+        this.odex = odex;
+    }
+
+    public boolean isOn_sd() {
+        return on_sd;
+    }
+
+    public void setOn_sd(boolean on_sd) {
+        this.on_sd = on_sd;
+    }
+
+    public int getStored() {
+        return stored;
+    }
+
+    public void setStored(int stored) {
+        this.stored = stored;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
+
+    public int getUpdatetime() {
+        return updatetime;
+    }
+
+    public void setUpdatetime(int updatetime) {
+        this.updatetime = updatetime;
+    }
+
+    public String getApplicationPath() {
+        return applicationPath;
+    }
+
+    public void setApplicationPath(String applicationPath) {
+        this.applicationPath = applicationPath;
+    }
+
+    public List<String> getAdvertisments() {
+        return advertisments;
+    }
+
+    public void setAdvertisments(List<String> advertisments) {
+        this.advertisments = advertisments;
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
     }
 }
