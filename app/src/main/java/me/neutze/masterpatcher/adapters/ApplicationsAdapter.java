@@ -105,7 +105,7 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
             super(itemView);
             mCardView = (CardView) itemView.findViewById(R.id.application_card);
             applicationName = (TextView) itemView.findViewById(R.id.app_name);
-            options = (TextView) itemView.findViewById(R.id.app_license);
+            options = (TextView) itemView.findViewById(R.id.app_options);
             applicationLogo = (ImageView) itemView.findViewById(R.id.app_logo);
             itemView.setOnClickListener(this);
 

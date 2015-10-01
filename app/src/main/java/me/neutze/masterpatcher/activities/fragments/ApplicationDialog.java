@@ -1,8 +1,5 @@
-package me.neutze.masterpatcher.utils.dialogs;
+package me.neutze.masterpatcher.activities.fragments;
 
-/**
- * Created by H1GHWAvE on 29/09/15.
- */
 
 import android.content.Context;
 import android.os.Bundle;

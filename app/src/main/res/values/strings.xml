@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MasterPatcher</string>
+    <string name="app_name">Master Patcher</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -20,4 +20,8 @@
     <string name="billing">InApp purchases found.</string>
     <string name="ads">Advertisements found.</string>
     <string name="version_code">version_code</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_about">About</string>
 </resources>
