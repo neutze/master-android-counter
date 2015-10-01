@@ -4,13 +4,14 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import net.erdfelt.android.apk.AndroidApk;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import eu.chainfire.libsuperuser.Shell;
@@ -22,9 +23,6 @@ import me.neutze.masterpatcher.utils.SDCardUtils;
 import me.neutze.masterpatcher.utils.SharedPrefUtils;
 import me.neutze.masterpatcher.utils.TimeUtils;
 
-/**
- * Created by H1GHWAvE on 24/09/15.
- */
 public class APKItem {
 
     private boolean ads;
@@ -38,7 +36,7 @@ public class APKItem {
     private boolean odex;
     private boolean on_sd;
     private String pkgName;
-    private int stored;
+    private int attributes;
     private boolean system;
     private int updatetime;
     private String applicationPath;
@@ -50,10 +48,7 @@ public class APKItem {
         this.pkgName = pkgName;
 
         this.applicationPath = context.getResources().getString(R.string.app_folder) + pkgName + "/" + context.getResources().getString(R.string.base_apk);
-        PackageInfo packageInfo = packageManager.getPackageArchiveInfo(applicationPath, 1);
-
-        packageInfo.applicationInfo.sourceDir = applicationPath;
-        packageInfo.applicationInfo.publicSourceDir = applicationPath;
+        PackageInfo packageInfo = setPackageInfo(packageManager, applicationPath);
 
         this.name = packageInfo.applicationInfo.loadLabel(packageManager).toString();
         this.icon = packageInfo.applicationInfo.loadIcon(packageManager);
@@ -100,16 +95,15 @@ public class APKItem {
             e.printStackTrace();
         }
 
-
-        stored = 0;
+        attributes = 0;
         if (ads) {
-            stored += 100;
+            attributes += 100;
         }
         if (billing) {
-            stored += 10;
+            attributes += 10;
         }
         if (lvl) {
-            stored += 1;
+            attributes += 1;
         }
 
         this.edited = false;
@@ -119,26 +113,35 @@ public class APKItem {
     public static List<APKItem> getApplications(Context context) {
         List<APKItem> applicationsList = new ArrayList<>();
         PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
 
         List<String> installedApplications = Shell.SU.run("ls " + context.getResources().getString(R.string.app_folder));
         for (String application : installedApplications) {
             APKItem apkItem = SharedPrefUtils.getAPKItem(context, application);
 
             if (apkItem == null) {
-                Log.e(application, "new APKItem");
                 apkItem = getApkItem(context, application, packageManager);
             } else {
                 if (apkItem.isEdited()) {
-                    Log.e(application, "update APKItem");
                     apkItem = getApkItem(context, application, packageManager);
                 } else {
-                    Log.e(application, "get Icon");
-                    PackageInfo packageInfo = packageManager.getPackageArchiveInfo(apkItem.getApplicationPath(), 1);
-                    apkItem.setIcon(packageInfo.applicationInfo.loadIcon(packageManager));
+                    packageInfo = setPackageInfo(packageManager, apkItem.getApplicationPath());
+                    Drawable icon = packageInfo.applicationInfo.loadIcon(packageManager);
+
+                    apkItem.setIcon(icon);
                 }
             }
-            applicationsList.add(apkItem);
+            if (apkItem.getAttributes() != 0 || apkItem.getPermissions() != null)
+                applicationsList.add(apkItem);
         }
+
+        Collections.sort(applicationsList, new Comparator<APKItem>() {
+            @Override
+            public int compare(APKItem o1, APKItem o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+
+        });
 
         return applicationsList;
     }
@@ -148,6 +151,13 @@ public class APKItem {
         SharedPrefUtils.saveAPKItem(context, apkItem);
 
         return apkItem;
+    }
+
+    private static PackageInfo setPackageInfo(PackageManager packageManager, String applicationPath) {
+        PackageInfo packageInfo = packageManager.getPackageArchiveInfo(applicationPath, 0);
+        packageInfo.applicationInfo.sourceDir = applicationPath;
+        packageInfo.applicationInfo.publicSourceDir = applicationPath;
+        return packageInfo;
     }
 
     public String getName() {
@@ -258,12 +268,12 @@ public class APKItem {
         this.on_sd = on_sd;
     }
 
-    public int getStored() {
-        return stored;
+    public int getAttributes() {
+        return attributes;
     }
 
-    public void setStored(int stored) {
-        this.stored = stored;
+    public void setAttributes(int attributes) {
+        this.attributes = attributes;
     }
 
     public boolean isSystem() {
@@ -305,4 +315,6 @@ public class APKItem {
     public void setEdited(boolean edited) {
         this.edited = edited;
     }
+
+
 }
