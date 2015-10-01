@@ -3,6 +3,7 @@ package me.neutze.masterpatcher.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -25,6 +26,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.neutze.masterpatcher.R;
+import me.neutze.masterpatcher.activities.fragments.AboutDialog;
 import me.neutze.masterpatcher.adapters.ApplicationsAdapter;
 import me.neutze.masterpatcher.models.APKItem;
 import me.neutze.masterpatcher.utils.RootUtils;
@@ -42,10 +44,13 @@ public class MainActivity extends AppCompatActivity implements
     RecyclerView mRecyclerView;
     @Bind(R.id.toolbar_basic)
     Toolbar toolbar_main;
+
     private List<APKItem> applicationsList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private int mNavItemId;
+    private String versionName;
+    private int versionCode;
 
     public static Toolbar getToolbar(Activity activity) {
         return ((MainActivity) activity).toolbar_main;
@@ -57,10 +62,11 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        checkVersion();
+        initVersion();
         initRecyclerView();
         initToolbar();
         setupDrawerLayout(savedInstanceState);
+
 
     }
 
@@ -91,22 +97,36 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initRecyclerView() {
+        if (versionCode != SharedPrefUtils.getVersion(getApplicationContext())) {
+            SharedPrefUtils.clearAllPrefs(getApplicationContext());
+            SharedPrefUtils.saveVersion(getApplicationContext(), versionCode);
+        }
         if (RootUtils.isSUavailable()) {
             new APKItemsLoader().execute();
         }
     }
 
-    private void checkVersion() {
+    private void initVersion() {
+        PackageManager packetManager = getPackageManager();
+        PackageInfo packageInfo;
         try {
-            PackageManager packetManager = getPackageManager();
-            int versionCode = packetManager.getPackageInfo(getPackageName(), 0).versionCode;
-            if (versionCode != SharedPrefUtils.getVersion(getApplicationContext())) {
-                SharedPrefUtils.clearAllPrefs(getApplicationContext());
-                SharedPrefUtils.saveVersion(getApplicationContext(), versionCode);
-            }
+            packageInfo = packetManager.getPackageInfo(getPackageName(), 0);
+            versionCode = packageInfo.versionCode;
+            versionName = packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            SharedPrefUtils.clearAllPrefs(getApplicationContext());
+            e.printStackTrace();
         }
+
+    }
+
+    private void showAboutDialog() {
+        Bundle aboutDialogArgs = new Bundle();
+        aboutDialogArgs.putString(getApplicationContext().getString(R.string.about_dialog_version), versionName);
+        aboutDialogArgs.putInt(getApplicationContext().getString(R.string.about_dialog_build), versionCode);
+
+        AboutDialog aboutDialog = new AboutDialog();
+        aboutDialog.setArguments(aboutDialogArgs);
+        aboutDialog.show(getSupportFragmentManager(), getApplicationContext().getString(R.string.about_dialog));
     }
 
 
@@ -119,13 +139,13 @@ public class MainActivity extends AppCompatActivity implements
          ?**/
     }
 
-    private void navigate(final int itemId) {
-        if (itemId == R.id.drawer_settings) {
+    private void navigate(final int drawerItemId) {
+        if (drawerItemId == R.id.drawer_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }
-        if (itemId == R.id.drawer_about) {
-            showVersion();
+        if (drawerItemId == R.id.drawer_about) {
+            showAboutDialog();
         }
     }
 
@@ -151,10 +171,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onConfigurationChanged(final Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private void showVersion() {
-        Log.e("JOHANNES", "VERSION");
     }
 
     private void initToolbar() {
@@ -198,7 +214,6 @@ public class MainActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(Void aVoid) {
-
             ApplicationsAdapter mApplicationsAdapter = new ApplicationsAdapter(applicationsList, getApplicationContext());
             LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getApplicationContext());
 
