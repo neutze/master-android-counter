@@ -13,7 +13,7 @@ android {
         applicationId "me.neutze.masterpatcher"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 2
+        versionCode 1
         versionName "0.0.1 Armenija"
     }
     buildTypes {

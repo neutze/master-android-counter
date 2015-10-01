@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements
     RecyclerView mRecyclerView;
     @Bind(R.id.toolbar_basic)
     Toolbar toolbar_main;
-    PackageManager packetManager;
     private List<APKItem> applicationsList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -57,18 +56,16 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar_main);
-
-        packetManager = getPackageManager();
 
         checkVersion();
+        initRecyclerView();
+        initToolbar();
+        setupDrawerLayout(savedInstanceState);
 
-        if (RootUtils.isSUavailable()) {
-            new APKItemsLoader().execute();
-        }
+    }
 
+    private void setupDrawerLayout(Bundle savedInstanceState) {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        setSupportActionBar(toolbar_main);
 
         // load saved navigation state if present
         if (null == savedInstanceState) {
@@ -93,8 +90,15 @@ public class MainActivity extends AppCompatActivity implements
         navigate(mNavItemId);
     }
 
+    private void initRecyclerView() {
+        if (RootUtils.isSUavailable()) {
+            new APKItemsLoader().execute();
+        }
+    }
+
     private void checkVersion() {
         try {
+            PackageManager packetManager = getPackageManager();
             int versionCode = packetManager.getPackageInfo(getPackageName(), 0).versionCode;
             if (versionCode != SharedPrefUtils.getVersion(getApplicationContext())) {
                 SharedPrefUtils.clearAllPrefs(getApplicationContext());
@@ -153,6 +157,10 @@ public class MainActivity extends AppCompatActivity implements
         Log.e("JOHANNES", "VERSION");
     }
 
+    private void initToolbar() {
+        setSupportActionBar(toolbar_main);
+    }
+
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -181,7 +189,11 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = ProgressDialog.show(MainActivity.this, "", "Loading. Please wait...", true);
+            dialog = new ProgressDialog(MainActivity.this);
+            dialog.setProgressStyle(R.style.AppTheme_ProgressDialog);
+            dialog.setMessage(getApplicationContext().getString(R.string.app_load));
+            dialog.setCancelable(false);
+            dialog.show();
         }
 
         @Override

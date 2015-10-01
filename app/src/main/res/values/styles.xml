@@ -17,4 +17,7 @@
         <item name="colorPrimary">@color/primary_text</item>
     </style>
 
+    <style name="AppTheme.ProgressDialog">
+        <item name="android:progressBarStyle">@color/primary</item>
+    </style>
 </resources>
