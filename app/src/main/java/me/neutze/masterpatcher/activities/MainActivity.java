@@ -2,6 +2,7 @@ package me.neutze.masterpatcher.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -16,7 +17,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // load saved navigation state if present
         if (null == savedInstanceState) {
-            mNavItemId = R.id.drawer_item_1;
+            mNavItemId = R.id.drawer_home;
         } else {
             mNavItemId = savedInstanceState.getInt(NAV_ITEM_ID);
         }
@@ -106,13 +106,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-
     private void showApplicationDialog(APKItem apkItem) {
 
         Log.e("JOHANNES", "clickediclick");
@@ -123,7 +116,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void navigate(final int itemId) {
-        // perform the actual navigation logic, updating the main content fragment etc
+        if (itemId == R.id.drawer_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        }
+        if (itemId == R.id.drawer_about) {
+            showVersion();
+        }
     }
 
     @Override
@@ -150,12 +149,8 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == android.support.v7.appcompat.R.id.home) {
-            return mDrawerToggle.onOptionsItemSelected(item);
-        }
-        return super.onOptionsItemSelected(item);
+    private void showVersion() {
+        Log.e("JOHANNES", "VERSION");
     }
 
     @Override
