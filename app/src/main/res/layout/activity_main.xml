@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="56dp"
-            android:paddingTop="8dp" />
+            android:paddingTop="@dimen/spacing_medium" />
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
