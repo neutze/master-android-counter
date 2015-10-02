@@ -1,22 +1,25 @@
 package me.neutze.masterpatcher.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
 
 import me.neutze.masterpatcher.R;
+import me.neutze.masterpatcher.activities.ApplicationActivity;
 import me.neutze.masterpatcher.models.APKItem;
 
 public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapter.ApplicationViewHolder> {
-    private static ClickListener clickListener;
     private List<APKItem> applications;
     private Context context;
 
@@ -32,12 +35,12 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
     }
 
     @Override
-    public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, int i) {
-        mApplicationViewHolder.applicationName.setText(applications.get(i).getName());
+    public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, final int position) {
+        mApplicationViewHolder.applicationName.setText(applications.get(position).getName());
 
         String permissions = null;
 
-        switch (applications.get(i).getAttributes()) {
+        switch (applications.get(position).getAttributes()) {
             case (1):
                 break;
             case (10):
@@ -58,17 +61,17 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         }
 
 
-        if (applications.get(i).getLvl()) {
+        if (applications.get(position).getLvl()) {
             permissions = context.getResources().getString(R.string.lvl);
         }
 
-        if (applications.get(i).getBilling()) {
+        if (applications.get(position).getBilling()) {
             if (permissions == null)
                 permissions = context.getResources().getString(R.string.billing);
             else
                 permissions += "\n" + context.getResources().getString(R.string.billing);
         }
-        if (applications.get(i).getAds()) {
+        if (applications.get(position).getAds()) {
             if (permissions == null)
                 permissions = context.getResources().getString(R.string.ads);
             else
@@ -79,7 +82,31 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
             permissions = context.getString(R.string.no_patch);
 
         mApplicationViewHolder.options.setText(permissions);
-        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(i).getIcon());
+        mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(position).getIcon());
+
+
+        mApplicationViewHolder.application_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ApplicationActivity.class);
+                intent.putExtra(context.getString(R.string.app_parcel), applications.get(position));
+                context.startActivity(intent);
+            }
+        });
+
+        mApplicationViewHolder.application_permission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("JOHANNES", "2");
+            }
+        });
+
+        mApplicationViewHolder.application_license.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("JOHANNES", "3");
+            }
+        });
     }
 
     @Override
@@ -87,39 +114,39 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         return applications.size();
     }
 
-    public void setOnItemClickListener(ClickListener clickListener) {
-        ApplicationsAdapter.clickListener = clickListener;
-    }
-
-    public interface ClickListener {
-        void onItemClick(int position, View v);
-    }
-
-
-    public static class ApplicationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ApplicationViewHolder extends RecyclerView.ViewHolder {
         CardView mCardView;
         TextView applicationName;
         TextView options;
         ImageView applicationLogo;
-        Button such_button;
+        LinearLayout app_options_menu;
+        LinearLayout application_info;
+        LinearLayout application_permission;
+        LinearLayout application_license;
+        RelativeLayout app_layout;
 
         ApplicationViewHolder(View itemView) {
             super(itemView);
+            app_layout = (RelativeLayout) itemView.findViewById(R.id.app_layout);
             mCardView = (CardView) itemView.findViewById(R.id.application_card);
             applicationName = (TextView) itemView.findViewById(R.id.app_name);
             options = (TextView) itemView.findViewById(R.id.app_options);
             applicationLogo = (ImageView) itemView.findViewById(R.id.app_logo);
-            such_button = (Button) itemView.findViewById(R.id.such_button);
-            itemView.setOnClickListener(this);
+            app_options_menu = (LinearLayout) itemView.findViewById(R.id.app_options_menu);
+            application_info = (LinearLayout) itemView.findViewById(R.id.application_info);
+            application_permission = (LinearLayout) itemView.findViewById(R.id.application_permission);
+            application_license = (LinearLayout) itemView.findViewById(R.id.application_license);
 
-        }
-
-        @Override
-        public void onClick(View v) {
-
-            clickListener.onItemClick(getAdapterPosition(), v);
-
-            //if (such_button.)
+            app_layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (app_options_menu.getVisibility() == View.VISIBLE) {
+                        app_options_menu.setVisibility(View.GONE);
+                    } else if (app_options_menu.getVisibility() == View.GONE) {
+                        app_options_menu.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
     }
 }

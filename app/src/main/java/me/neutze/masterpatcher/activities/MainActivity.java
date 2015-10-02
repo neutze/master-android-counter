@@ -19,9 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -148,16 +146,6 @@ public class MainActivity extends AppCompatActivity implements
             ok_button.setTextColor(getApplicationContext().getResources().getColor(R.color.primary));
     }
 
-
-    private void showApplicationDialog(APKItem apkItem) {
-
-        Log.e("JOHANNES", "clickediclick");
-        /**FragmentManager mFragmentManager = getSupportFragmentManager();
-         ApplicationDialog mApplicationDialog = ApplicationDialog.newInstance(this, apkItem);
-         mApplicationDialog.show(mFragmentManager, getApplicationContext().getResources().getString(R.string.dialog_application));
-         ?**/
-    }
-
     private void navigate(final int drawerItemId) {
         if (drawerItemId == R.id.drawer_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -234,14 +222,6 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(Void aVoid) {
             ApplicationsAdapter mApplicationsAdapter = new ApplicationsAdapter(applicationsList, getApplicationContext());
             LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getApplicationContext());
-
-            mApplicationsAdapter.setOnItemClickListener(new ApplicationsAdapter.ClickListener() {
-                @Override
-                public void onItemClick(int position, View v) {
-
-                    showApplicationDialog(applicationsList.get(position));
-                }
-            });
 
             dialog.cancel();
 
