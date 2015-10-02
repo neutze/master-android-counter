@@ -2,6 +2,7 @@ package me.neutze.masterpatcher.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,13 +22,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.neutze.masterpatcher.R;
-import me.neutze.masterpatcher.activities.fragments.AboutDialog;
 import me.neutze.masterpatcher.adapters.ApplicationsAdapter;
 import me.neutze.masterpatcher.models.APKItem;
 import me.neutze.masterpatcher.utils.RootUtils;
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements
     RecyclerView mRecyclerView;
     @Bind(R.id.toolbar_basic)
     Toolbar toolbar_main;
+    @Bind(R.id.drawer_header_image)
+    ImageView drawer_header_image;
 
     private List<APKItem> applicationsList;
     private DrawerLayout mDrawerLayout;
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements
     private int mNavItemId;
     private String versionName;
     private int versionCode;
+    private AlertDialog alert;
 
     public static Toolbar getToolbar(Activity activity) {
         return ((MainActivity) activity).toolbar_main;
@@ -124,9 +130,22 @@ public class MainActivity extends AppCompatActivity implements
         aboutDialogArgs.putString(getApplicationContext().getString(R.string.about_dialog_version), versionName);
         aboutDialogArgs.putInt(getApplicationContext().getString(R.string.about_dialog_build), versionCode);
 
-        AboutDialog aboutDialog = new AboutDialog();
-        aboutDialog.setArguments(aboutDialogArgs);
-        aboutDialog.show(getSupportFragmentManager(), getApplicationContext().getString(R.string.about_dialog));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getApplicationContext().getString(R.string.app_name))
+                .setMessage("Author: Johannes Neutze\nVersion: " + versionName + "." + versionCode)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        alert.dismiss();
+                    }
+                });
+
+        alert = builder.create();
+        alert.show();
+
+        Button ok_button = alert.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (ok_button != null)
+            ok_button.setTextColor(getApplicationContext().getResources().getColor(R.color.primary));
     }
 
 
@@ -206,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPreExecute() {
             super.onPreExecute();
             dialog = new ProgressDialog(MainActivity.this);
-            dialog.setProgressStyle(R.style.AppTheme_ProgressDialog);
             dialog.setMessage(getApplicationContext().getString(R.string.app_load));
             dialog.setCancelable(false);
             dialog.show();

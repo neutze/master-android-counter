@@ -5,4 +5,11 @@
     android:background="@color/accent"
     android:orientation="vertical"
     android:paddingTop="@dimen/status_bar_height"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/drawer_header_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/ic_doge" />
+</RelativeLayout>

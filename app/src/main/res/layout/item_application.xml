@@ -6,39 +6,52 @@
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/ripple_mask"
-        android:clickable="true"
-        android:padding="16dp">
+        android:divider="@drawable/divider_vertical"
+        android:orientation="vertical"
+        android:showDividers="middle">
 
-        <ImageView
-            android:id="@+id/app_logo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="16dp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_mask"
+            android:clickable="true"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/app_name"
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="16dp" />
+
+            <TextView
+                android:id="@+id/app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/app_logo"
+                android:text="@string/main_card_appPlaceholder"
+                android:textSize="@dimen/material_text_title" />
+
+            <TextView
+                android:id="@+id/app_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/app_name"
+                android:layout_toRightOf="@+id/app_logo"
+                android:text="@string/main_card_licensePlaceholder"
+                android:textSize="@dimen/material_text_body1" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/such_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/app_logo"
-            android:text="@string/main_card_appPlaceholder"
-            android:textSize="@dimen/material_text_title" />
-
-        <TextView
-            android:id="@+id/app_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/app_name"
-            android:layout_toRightOf="@+id/app_logo"
-            android:text="@string/main_card_licensePlaceholder"
-            android:textSize="@dimen/material_text_body1" />
-
-    </RelativeLayout>
-
+            android:text="SUCH TEXT WOW" />
+    </LinearLayout>
 </android.support.v7.widget.CardView>

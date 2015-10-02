@@ -9,6 +9,8 @@
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:alertDialogTheme">@style/AppTheme.Dialog</item>
+        <item name="android:alertDialogStyle">@style/AppTheme.Dialog</item>
     </style>
 
     <style name="AppTheme.Toolbar" parent="Theme.AppCompat.NoActionBar" />
@@ -17,7 +19,7 @@
         <item name="colorPrimary">@color/primary_text</item>
     </style>
 
-    <style name="AppTheme.ProgressDialog">
-        <item name="android:progressBarStyle">@color/primary</item>
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/primary</item>
     </style>
 </resources>

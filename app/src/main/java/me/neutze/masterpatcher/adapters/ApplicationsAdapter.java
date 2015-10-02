@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -100,6 +101,7 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         TextView applicationName;
         TextView options;
         ImageView applicationLogo;
+        Button such_button;
 
         ApplicationViewHolder(View itemView) {
             super(itemView);
@@ -107,13 +109,17 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
             applicationName = (TextView) itemView.findViewById(R.id.app_name);
             options = (TextView) itemView.findViewById(R.id.app_options);
             applicationLogo = (ImageView) itemView.findViewById(R.id.app_logo);
+            such_button = (Button) itemView.findViewById(R.id.such_button);
             itemView.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
+
             clickListener.onItemClick(getAdapterPosition(), v);
+
+            //if (such_button.)
         }
     }
 }
