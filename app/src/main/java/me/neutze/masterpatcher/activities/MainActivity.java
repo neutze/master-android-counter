@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements
         initToolbar();
         setupDrawerLayout(savedInstanceState);
 
+        //TODO: do not reload always (flag ob reload?)
 
     }
 

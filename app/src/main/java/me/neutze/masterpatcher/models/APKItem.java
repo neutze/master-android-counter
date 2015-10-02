@@ -129,7 +129,6 @@ public class APKItem implements Parcelable {
         billing = in.readByte() != 0x00;
         custom = in.readByte() != 0x00;
         enable = in.readByte() != 0x00;
-        icon = (Drawable) in.readValue(Drawable.class.getClassLoader());
         lvl = in.readByte() != 0x00;
         modified = in.readByte() != 0x00;
         name = in.readString();
@@ -372,7 +371,6 @@ public class APKItem implements Parcelable {
         dest.writeByte((byte) (billing ? 0x01 : 0x00));
         dest.writeByte((byte) (custom ? 0x01 : 0x00));
         dest.writeByte((byte) (enable ? 0x01 : 0x00));
-        dest.writeValue(icon);
         dest.writeByte((byte) (lvl ? 0x01 : 0x00));
         dest.writeByte((byte) (modified ? 0x01 : 0x00));
         dest.writeString(name);

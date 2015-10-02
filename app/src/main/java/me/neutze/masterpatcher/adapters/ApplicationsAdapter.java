@@ -35,7 +35,8 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
     }
 
     @Override
-    public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, final int position) {
+    public void onBindViewHolder(ApplicationViewHolder mApplicationViewHolder, int position) {
+
         mApplicationViewHolder.applicationName.setText(applications.get(position).getName());
 
         String permissions = null;
@@ -84,12 +85,32 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
         mApplicationViewHolder.options.setText(permissions);
         mApplicationViewHolder.applicationLogo.setImageDrawable(applications.get(position).getIcon());
 
+        initLabels();
+        initOnClickListener(mApplicationViewHolder, position);
+    }
+
+    private void initLabels() {
+    }
+
+    private void initOnClickListener(final ApplicationViewHolder mApplicationViewHolder, final int position) {
+        mApplicationViewHolder.app_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mApplicationViewHolder.app_options_menu.getVisibility() == View.VISIBLE) {
+                    mApplicationViewHolder.app_options_menu.setVisibility(View.GONE);
+                    mApplicationViewHolder.app_layout.setBackgroundColor(context.getResources().getColor(R.color.primary_light));
+                } else if (mApplicationViewHolder.app_options_menu.getVisibility() == View.GONE) {
+                    mApplicationViewHolder.app_options_menu.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         mApplicationViewHolder.application_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ApplicationActivity.class);
                 intent.putExtra(context.getString(R.string.app_parcel), applications.get(position));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
         });
@@ -136,17 +157,6 @@ public class ApplicationsAdapter extends RecyclerView.Adapter<ApplicationsAdapte
             application_info = (LinearLayout) itemView.findViewById(R.id.application_info);
             application_permission = (LinearLayout) itemView.findViewById(R.id.application_permission);
             application_license = (LinearLayout) itemView.findViewById(R.id.application_license);
-
-            app_layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (app_options_menu.getVisibility() == View.VISIBLE) {
-                        app_options_menu.setVisibility(View.GONE);
-                    } else if (app_options_menu.getVisibility() == View.GONE) {
-                        app_options_menu.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
         }
     }
 }

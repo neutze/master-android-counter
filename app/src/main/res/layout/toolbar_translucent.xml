@@ -3,6 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_bar_height"
+        android:background="@color/primary_dark" />
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_basic"
         android:layout_width="match_parent"

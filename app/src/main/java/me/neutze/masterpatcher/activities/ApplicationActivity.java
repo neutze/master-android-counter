@@ -27,7 +27,7 @@ public class ApplicationActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            toolbar.setTitle(apkItem != null ? apkItem.getName() : null);
+            getSupportActionBar().setTitle(apkItem != null ? apkItem.getName() : null);
         }
     }
 }
