@@ -16,6 +16,7 @@ android {
         versionCode 1
         versionName "Armenija 0.0.1"
     }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -35,6 +36,7 @@ dependencies {
     compile 'com.android.support:design:23.0.1'
     compile 'eu.chainfire:libsuperuser:1.0.0.201504231659'
     compile 'com.google.code.gson:gson:2.3.1'
+
     compile files('libs/zip4j_1.3.2.jar')
 
 }
